@@ -3,6 +3,11 @@ package config
 import (
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
+	"time"
+)
+
+const (
+	defaultHarvestRate = 5 * time.Second
 )
 
 type Config struct {

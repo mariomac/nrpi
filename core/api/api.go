@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -37,6 +38,7 @@ func (n newRelicImpl) SendEvent(event interface{}) error {
 	if err != nil {
 		return err
 	}
+	log.Print("sending ", string(body))
 
 	var gzippedBody bytes.Buffer
 	// Todo: configure gzip level
