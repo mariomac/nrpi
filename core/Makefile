@@ -10,7 +10,7 @@ all: clean lint test build
 
 build: deps
 	mkdir -p $(TARGET_DIR)
-	@go build -o $(TARGET_DIR)/iot-agent hello.go 
+	@go build -o $(TARGET_DIR)/iot-agent main.go
 
 clean:
 	rm -rf $(TARGET_DIR)
