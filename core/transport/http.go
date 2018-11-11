@@ -1,4 +1,4 @@
-package iot
+package transport
 
 import (
 	"io"
@@ -21,7 +21,7 @@ func NewHttpServer(port int) HttpServer {
 	return server
 }
 
-func (h *HttpServer) Connector(path string) Connector {
+func (h *HttpServer) Endpoint(path string) Receiver {
 	reader, pwriter := io.Pipe()
 	h.mux.HandleFunc(path, func(writer http.ResponseWriter, request *http.Request) {
 		body, err := ioutil.ReadAll(request.Body)

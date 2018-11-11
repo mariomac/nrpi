@@ -1,34 +1,19 @@
-package native
+package metrics
 
 import (
-	"log"
-	"time"
-
-	"github.com/mariomac/nrpi/core/measure"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
+	"log"
+	"time"
 )
-
-type Collector struct{}
-
-func (*Collector) Receive(ch chan<- measure.Harvest) {
-	go func() {
-		sh := systemHarvester{}
-		sh.Collect(ch)
-	}()
-}
-
-type Harvester interface {
-	Collect(chan<- measure.Harvest)
-}
 
 type systemHarvester struct{}
 
 const interval = 5 * time.Second // todo: make configurable
 
-func (*systemHarvester) Collect(ch chan<- measure.Harvest) { // todo: test
+func (*systemHarvester) Collect(ch chan<- Harvest) { // todo: test
 	for { // TODO: stop when channel is closed
-		h := measure.Harvest{}
+		h := Harvest{}
 		h.EventType("SystemHarvest")
 		vm, err := mem.VirtualMemory()
 		if err == nil {
@@ -47,3 +32,4 @@ func (*systemHarvester) Collect(ch chan<- measure.Harvest) { // todo: test
 		time.Sleep(interval)
 	}
 }
+
