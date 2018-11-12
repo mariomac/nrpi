@@ -1,20 +1,21 @@
-package metrics
+package pipeline
 
 import (
+	"github.com/mariomac/nrpi/core/metrics"
 	"log"
 	"time"
 
 	"github.com/mariomac/nrpi/core/api"
 )
 
-func Aggregate(nr api.NewRelic, collectors ...Collector) {
+func Aggregate(nr api.NewRelic, collectors ...metrics.Collector) {
 
 	// Receiver loop
-	receiver := make(chan Harvest)
+	receiver := make(chan metrics.Harvest)
 	for _, coll := range collectors {
 		coll.Receive(receiver)
 	}
-	batch := make([]Harvest, 0)
+	batch := make([]metrics.Harvest, 0)
 	submitTicker := time.Tick(5 * time.Second) // todo: make configurable
 	for {
 		select {

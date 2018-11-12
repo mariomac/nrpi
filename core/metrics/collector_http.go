@@ -18,7 +18,7 @@ func NewHttpCollector(server transport.HttpServer) HttpCollector {
 	}
 }
 
-func (h *HttpCollector) Receive(batcher chan<- Harvest) {
+func (h *HttpCollector) Receive(ch chan<- Harvest) {
 	// todo: validate format (e.g. content-type)
 	// todo: integrate authentication/security
 	go func() {
@@ -28,8 +28,7 @@ func (h *HttpCollector) Receive(batcher chan<- Harvest) {
 		for  err == nil  {
 			payload := make(Harvest)
 			json.Unmarshal(jsonbytes, &payload)
-			log.Printf("HTTP Sending %#v", payload)
-			batcher <- payload
+			ch <- payload
 			jsonbytes, err = br.ReadBytes(byte('\n'))
 		}
 		if err != io.EOF {

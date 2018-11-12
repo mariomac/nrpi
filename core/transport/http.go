@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,7 +17,7 @@ func NewHttpServer(port int) HttpServer {
 		mux: http.NewServeMux(),
 	}
 	go func() {
-		http.ListenAndServe(":8080", server.mux)
+		http.ListenAndServe(fmt.Sprintf(":%d", port), server.mux)
 	}()
 	return server
 }
