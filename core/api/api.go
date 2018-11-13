@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -19,7 +18,7 @@ const (
 
 // NewRelic describes the interface to the New Relic API
 type NewRelic interface {
-	SendEvent(event interface{}) error
+	SendEvent(body []byte) error
 }
 
 type newRelicImpl struct {
@@ -35,11 +34,7 @@ func New(accountID, licenseKey string) NewRelic {
 	}
 }
 
-func (n newRelicImpl) SendEvent(event interface{}) error {
-	body, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
+func (n newRelicImpl) SendEvent(body []byte) error {
 	log.Print("sending ", string(body))
 
 	var gzippedBody bytes.Buffer

@@ -9,22 +9,22 @@ import (
 	"github.com/mariomac/nrpi/core/transport"
 )
 
-// HTTPCollector implements a Collector that receives the Metrics as JSONs sent through an http
+// httpCollector implements a Collector that receives the Metrics as JSONs sent through an http
 // connection.
-type HTTPCollector struct {
+type httpCollector struct {
 	receiver transport.Receiver
 }
 
-// NewHTTPCollector attaches an HTTPCollector to the "/http" path of the passed server, and returns
+// NewHTTPCollector attaches an httpCollector to the "/http" path of the passed server, and returns
 // it.
-func NewHTTPCollector(server transport.HTTPServer) HTTPCollector {
-	return HTTPCollector{
+func NewHTTPCollector(server transport.HTTPServer) Collector {
+	return &httpCollector{
 		receiver: server.Endpoint("/http"),
 	}
 }
 
 // Forward forwards to the channel the received metrics
-func (h *HTTPCollector) Forward(ch chan<- Harvest) {
+func (h *httpCollector) Forward(ch chan<- Harvest) {
 	// todo: validate format (e.g. content-type)
 	// todo: integrate authentication/security
 	go func() {

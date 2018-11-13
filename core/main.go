@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync"
 	"time"
 
 	"github.com/mariomac/nrpi/core/pipeline"
@@ -17,14 +18,25 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	client := api.New(cfg.AccountID, cfg.LicenseKey)
-
 	server := transport.NewHTTPServer(8080)
 	httpCollector := metrics.NewHTTPCollector(server)
-	pipeline.Aggregate(client,
-		metrics.StaticCollector(
-			metrics.SystemHarvester(5*time.Second),
-		),
-		&httpCollector,
+	staticCollector := metrics.StaticCollector(
+		metrics.SystemHarvester(5 * time.Second),
 	)
+
+	toBuffer := make(chan metrics.Harvest)
+	pipeline.Join([]metrics.Collector{staticCollector, httpCollector}, toBuffer)
+
+
+	toMarshal := make(chan []metrics.Harvest)
+	pipeline.Buffer(toBuffer, toMarshal, time.Tick(5*time.Second))
+
+	toSubmit := make(chan []byte)
+	pipeline.Marshaller(toMarshal, toSubmit)
+
+	pipeline.Submit(toSubmit, api.New(cfg.AccountID, cfg.LicenseKey))
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	wg.Wait()
 }

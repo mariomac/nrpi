@@ -21,6 +21,7 @@ func SystemHarvester(interval time.Duration) Harvester {
 }
 
 func (sh *systemHarvester) Start(ch chan<- Harvest) { // todo: test
+	log.Println("starting harvester")
 	for { // TODO: stop when channel is closed
 		h := Harvest{}
 		h.EventType("SystemHarvest")
@@ -37,7 +38,10 @@ func (sh *systemHarvester) Start(ch chan<- Harvest) { // todo: test
 		} else {
 			log.Println("Harvesting cpu: ", err.Error())
 		}
+		log.Println("submitting ")
 		ch <- h
+		log.Println("submitted")
+
 		time.Sleep(sh.interval)
 	}
 }
