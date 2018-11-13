@@ -1,6 +1,10 @@
 package main
 
 import (
+	"time"
+
+	"github.com/mariomac/nrpi/core/pipeline"
+
 	"github.com/mariomac/nrpi/core/api"
 	"github.com/mariomac/nrpi/core/config"
 	"github.com/mariomac/nrpi/core/metrics"
@@ -17,8 +21,10 @@ func main() {
 
 	server := transport.NewHttpServer(8080)
 	httpCollector := metrics.NewHttpCollector(server)
-	metrics.Aggregate(client,
-		&metrics.StaticCollector{},
+	pipeline.Aggregate(client,
+		metrics.StaticCollector(
+			metrics.SystemHarvester(5*time.Second),
+		),
 		&httpCollector,
 	)
 }

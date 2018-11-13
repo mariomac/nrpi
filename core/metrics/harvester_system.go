@@ -1,17 +1,24 @@
 package metrics
 
 import (
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
 	"log"
 	"time"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
 )
 
-type systemHarvester struct{}
+type systemHarvester struct {
+	interval time.Duration
+}
 
-const interval = 5 * time.Second // todo: make configurable
+func SystemHarvester(interval time.Duration) Harvester {
+	return &systemHarvester{
+		interval: interval,
+	}
+}
 
-func (*systemHarvester) Collect(ch chan<- Harvest) { // todo: test
+func (sh *systemHarvester) Start(ch chan<- Harvest) { // todo: test
 	for { // TODO: stop when channel is closed
 		h := Harvest{}
 		h.EventType("SystemHarvest")
@@ -29,7 +36,6 @@ func (*systemHarvester) Collect(ch chan<- Harvest) { // todo: test
 			log.Println("Harvesting cpu: ", err.Error())
 		}
 		ch <- h
-		time.Sleep(interval)
+		time.Sleep(sh.interval)
 	}
 }
-

@@ -1,20 +1,24 @@
 package metrics
 
-import "time"
-
-// StaticCollector collects metrics from Harvesters that are statically embedded into the Agent:
-// SystemHarvester
-type StaticCollector struct{}
-
-func NewStaticCollector(
-	systemHarvestPeriod time.Duration,
-	) {
-
+// nativeCollector collects metrics from go language static code or dynamic libraries
+type nativeCollector struct {
+	harvesters []Harvester
 }
+
+// StaticCollector creates a staticCollector from a set of harvesters that are statically available
+// at compile time
+func StaticCollector(harvesters ...Harvester) Collector {
+	return &nativeCollector{
+		harvesters: harvesters,
+	}
+}
+
 // Receive forwards by the channel the payloads from the Static Harvesters
-func (*StaticCollector) Receive(ch chan<- Harvest) {
+func (c *nativeCollector) Receive(ch chan<- Harvest) {
 	go func() {
-		sh := systemHarvester{}
-		sh.Collect(ch)
+		for _, h := range c.harvesters {
+			// todo: avoid blockings
+			h.Start(ch)
+		}
 	}()
 }
