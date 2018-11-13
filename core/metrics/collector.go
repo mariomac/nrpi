@@ -28,9 +28,9 @@ func (p Harvest) Validate() error {
 // todo: fromJSON
 
 // Collector implementors harvest metrics from a given source and forward them by the channel
-// specified in the Receive function
+// specified in the Forward function
 type Collector interface {
-	// Receive makes the collector start collecting Harvests. When the Collector receives a Harvest,
+	// Forward makes the collector start collecting Harvests. When the Collector receives a Harvest,
 	// it forwards it from the channel passed as argument
-	Receive(chan<- Harvest)
+	Forward(chan<- Harvest)
 }

@@ -13,8 +13,8 @@ func StaticCollector(harvesters ...Harvester) Collector {
 	}
 }
 
-// Receive forwards by the channel the payloads from the Static Harvesters
-func (c *nativeCollector) Receive(ch chan<- Harvest) {
+// Forward forwards by the channel the payloads from the Static Harvesters
+func (c *nativeCollector) Forward(ch chan<- Harvest) {
 	go func() {
 		for _, h := range c.harvesters {
 			// todo: avoid blockings

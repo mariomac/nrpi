@@ -2,23 +2,21 @@ package config
 
 import (
 	"io/ioutil"
+
 	"gopkg.in/yaml.v2"
-	"time"
 )
 
-const (
-	defaultHarvestRate = 5 * time.Second
-)
-
+// Config holds the Agent configuration
 type Config struct {
 	// todo: add development URL
-	AccountId string `yaml:"account_id"`
+	AccountID  string `yaml:"account_id"`
 	LicenseKey string `yaml:"license_key"`
 }
 
-func Load(file string) (Config, error) {
+// Load parses a Config object from a YAML file whose
+func Load(yamlFilePath string) (Config, error) {
 	var cfg Config
-	yml, err := ioutil.ReadFile(file)
+	yml, err := ioutil.ReadFile(yamlFilePath)
 	if err != nil {
 		return cfg, err
 	}

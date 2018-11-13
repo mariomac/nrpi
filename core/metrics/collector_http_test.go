@@ -13,12 +13,12 @@ import (
 
 const timeout = 3 * time.Second
 
-func TestHttpCollector_Receive(t *testing.T) {
+func TestHttpCollector_Forward(t *testing.T) {
 	const port = 56789 // todo: find automatically an unused port
 	// Given an HTTP collector
-	coll := NewHttpCollector(transport.NewHttpServer(port))
+	coll := NewHTTPCollector(transport.NewHTTPServer(port))
 	fwd := make(chan Harvest)
-	coll.Receive(fwd)
+	coll.Forward(fwd)
 
 	// When it receives a correct JSON payload
 	resp, err := http.Post(fmt.Sprintf("http://127.0.0.1:%d/http", port), "application/json",

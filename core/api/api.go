@@ -17,18 +17,20 @@ const (
 	keyHeader = "X-Insert-Key"
 )
 
+// NewRelic describes the interface to the New Relic API
 type NewRelic interface {
 	SendEvent(event interface{}) error
 }
 
 type newRelicImpl struct {
-	eventsUrl  string
+	eventsURL  string
 	licenseKey string
 }
 
-func New(accountId, licenseKey string) NewRelic {
+// New returns a new NewRelic API implementation, given an account ID and a License Key
+func New(accountID, licenseKey string) NewRelic {
 	return &newRelicImpl{
-		eventsUrl:  fmt.Sprintf(url, accountId),
+		eventsURL:  fmt.Sprintf(url, accountID),
 		licenseKey: licenseKey,
 	}
 }
@@ -47,7 +49,7 @@ func (n newRelicImpl) SendEvent(event interface{}) error {
 	w.Close()
 
 	// TODO: persistent connection
-	req, err := http.NewRequest(http.MethodPost, n.eventsUrl, bytes.NewReader(gzippedBody.Bytes()))
+	req, err := http.NewRequest(http.MethodPost, n.eventsURL, bytes.NewReader(gzippedBody.Bytes()))
 	if err != nil {
 		return err
 	}

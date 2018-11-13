@@ -8,12 +8,14 @@ import (
 	"net/http"
 )
 
-type HttpServer struct {
+// HTTPServer holds an HTTP Server that would be used to receive metrics
+type HTTPServer struct {
 	mux *http.ServeMux
 }
 
-func NewHttpServer(port int) HttpServer {
-	server := HttpServer{
+// NewHTTPServer returns an HTTPServer listening in the given port.
+func NewHTTPServer(port int) HTTPServer {
+	server := HTTPServer{
 		mux: http.NewServeMux(),
 	}
 	go func() {
@@ -22,7 +24,8 @@ func NewHttpServer(port int) HttpServer {
 	return server
 }
 
-func (h *HttpServer) Endpoint(path string) Receiver {
+// Endpoint attaches a new Receiver to the given path
+func (h *HTTPServer) Endpoint(path string) Receiver {
 	reader, pwriter := io.Pipe()
 	h.mux.HandleFunc(path, func(writer http.ResponseWriter, request *http.Request) {
 		body, err := ioutil.ReadAll(request.Body)
@@ -42,4 +45,3 @@ func (h *HttpServer) Endpoint(path string) Receiver {
 		return reader
 	}
 }
-

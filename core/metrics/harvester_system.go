@@ -12,6 +12,8 @@ type systemHarvester struct {
 	interval time.Duration
 }
 
+// SystemHarvester returns a harvester that collects system-level metrics (cpu, memory consumption...)
+// with the interval passed as parameter
 func SystemHarvester(interval time.Duration) Harvester {
 	return &systemHarvester{
 		interval: interval,

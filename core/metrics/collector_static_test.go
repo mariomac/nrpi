@@ -35,7 +35,7 @@ func TestStaticCollector(t *testing.T) {
 	ch := make(chan Harvest)
 
 	// When the collector starts receiving the harvests
-	coll.Receive(ch)
+	coll.Forward(ch)
 
 	// both harvests are received
 	harvests := make([]Harvest, 0, 2)

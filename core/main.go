@@ -17,10 +17,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	client := api.New(cfg.AccountId, cfg.LicenseKey)
+	client := api.New(cfg.AccountID, cfg.LicenseKey)
 
-	server := transport.NewHttpServer(8080)
-	httpCollector := metrics.NewHttpCollector(server)
+	server := transport.NewHTTPServer(8080)
+	httpCollector := metrics.NewHTTPCollector(server)
 	pipeline.Aggregate(client,
 		metrics.StaticCollector(
 			metrics.SystemHarvester(5*time.Second),
