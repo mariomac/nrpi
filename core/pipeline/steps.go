@@ -10,10 +10,23 @@ import (
 	"github.com/mariomac/nrpi/core/api"
 )
 
+func Agent(bufferClock <-chan time.Time, collectors []metrics.Collector, nr api.NewRelic) {
+	toBuffer := make(chan metrics.Harvest)
+	join(collectors, toBuffer)
+
+	toMarshal := make(chan []metrics.Harvest)
+	buffer(toBuffer, toMarshal, bufferClock)
+
+	toSubmit := make(chan []byte)
+	marshal(toMarshal, toSubmit)
+
+	submit(toSubmit, nr)
+}
+
 // todo: pass contexts to all the pipeline steps
 
-// Join mixes metrics received from the collectors and forwards them next pipeline step
-func Join(collectors []metrics.Collector, out chan<- metrics.Harvest) {
+// joins metrics received from the collectors and forwards them next pipeline step
+func join(collectors []metrics.Collector, out chan<- metrics.Harvest) {
 	go func() {
 		// Receiver loop
 		receiver := make(chan metrics.Harvest)
@@ -29,7 +42,7 @@ func Join(collectors []metrics.Collector, out chan<- metrics.Harvest) {
 }
 
 // clock is a signal
-func Buffer(in <-chan metrics.Harvest, out chan<- []metrics.Harvest, clock <-chan time.Time) {
+func buffer(in <-chan metrics.Harvest, out chan<- []metrics.Harvest, clock <-chan time.Time) {
 	go func() {
 		batch := make([]metrics.Harvest, 0)
 		for {
@@ -51,10 +64,10 @@ func Buffer(in <-chan metrics.Harvest, out chan<- []metrics.Harvest, clock <-cha
 	}()
 }
 
-func Marshaller(in <-chan []metrics.Harvest, out chan<- []byte) {
+func marshal(in <-chan []metrics.Harvest, out chan<- []byte) {
 	go func() {
 		for {
-			payload := <- in
+			payload := <-in
 			log.Println("Marshaler received", payload)
 			js, err := json.Marshal(payload)
 			if err != nil {
@@ -65,8 +78,8 @@ func Marshaller(in <-chan []metrics.Harvest, out chan<- []byte) {
 	}()
 }
 
-// Submit sends to the new relic api the received information
-func Submit(in <-chan []byte, nr api.NewRelic) {
+// submit sends to the new relic api the received information
+func submit(in <-chan []byte, nr api.NewRelic) {
 	go func() {
 		for {
 			nr.SendEvent(<-in)

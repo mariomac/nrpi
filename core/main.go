@@ -21,20 +21,14 @@ func main() {
 	server := transport.NewHTTPServer(8080)
 	httpCollector := metrics.NewHTTPCollector(server)
 	staticCollector := metrics.StaticCollector(
-		metrics.SystemHarvester(5 * time.Second),
+		metrics.SystemHarvester(5 * time.Second), // todo: make configurable
 	)
 
-	toBuffer := make(chan metrics.Harvest)
-	pipeline.Join([]metrics.Collector{staticCollector, httpCollector}, toBuffer)
-
-
-	toMarshal := make(chan []metrics.Harvest)
-	pipeline.Buffer(toBuffer, toMarshal, time.Tick(5*time.Second))
-
-	toSubmit := make(chan []byte)
-	pipeline.Marshaller(toMarshal, toSubmit)
-
-	pipeline.Submit(toSubmit, api.New(cfg.AccountID, cfg.LicenseKey))
+	pipeline.Agent(
+		time.Tick(5*time.Second), // todo: make configurable
+		[]metrics.Collector{staticCollector, httpCollector},
+		api.New(cfg.AccountID, cfg.LicenseKey),
+	)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
