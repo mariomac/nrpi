@@ -1,38 +1,37 @@
-GOTOOLS = github.com/golang/lint/golint \
-          gopkg.in/alecthomas/gometalinter.v2
+COVFILE  ?= cov.out
+GOTOOLS  ?= github.com/GeertJohan/fgt \
+			golang.org/x/tools/cmd/goimports \
+			github.com/kisielk/errcheck \
+			honnef.co/go/tools/cmd/staticcheck
+PACKAGES = $(shell go list ./...)
+SOURCES  = $(shell find . -name "*.go" | grep -v vendor/)
+TARGET_DIR ?= ../target
+TARGET ?= iot-agent
 
-PKGS = $(shell go list ./...
+dep:
+	go mod tidy
 
-TARGET_DIR = ../target
-TARGET = iot-agent
-
-all: clean lint test build
-
-build: deps
-	mkdir -p $(TARGET_DIR)
-	@go build -o $(TARGET_DIR)/iot-agent main.go
+build: dep
+	go build -o $(TARGET_DIR)/$(TARGET)
 
 clean:
 	rm -rf $(TARGET_DIR)
 
-deps:
-	@go mod tidy
+test: dep
+	go test -race $(PACKAGES)
 
-test: deps
-	@go test -race ./...
+cov-gen: dep
+	go test  $(PACKAGES) -coverprofile $(COVFILE)
 
-tools:
-	@go get $(GOTOOLS)
-	@gometalinter.v2 --install > /dev/null
+cov: cov-gen
+	go tool cover -html $(COVFILE)
 
-tools-update:
-	@go get -u $(GOTOOLS)
-	@gometalinter.v2 --install
-
-lint: tools deps
-	@gometalinter.v2 --config=.gometalinter.json $(PKGS)
-
-lint-all: deps
-	@gometalinter.v2 --config=.gometalinter.json --enable=interfacer --enable=gosimple $(PKGS)
-
-.PHONY: all deps test lint lint-all tools tools-update build clean
+lint:
+	go get $(GOTOOLS)
+	fgt go fmt $(PACKAGES)
+	fgt goimports -w $(SOURCES)
+	echo $(PACKAGES) | xargs -L1 fgt golint
+	fgt go vet $(PACKAGES)
+	fgt errcheck -ignore Close $(PACKAGES)
+	staticcheck $(PACKAGES)
+.SILENT: lint
