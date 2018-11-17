@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.osx": {
+        "PATH": "/Users/mmacias/.platformio/penv/bin:/Users/mmacias/.platformio/penv:/Users/mmacias/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/usr/local/opt/go/libexec/bin:/Users/mmacias/go/bin:/Library/Java/JavaVirtualMachines/jdk1.8.0_77.jdk/Contents/Home/bin",
+        "PLATFORMIO_CALLER": "vscode"
+    }
+}
